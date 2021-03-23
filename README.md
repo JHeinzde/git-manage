@@ -17,7 +17,8 @@ Its dependencies are reqwest and serde to do json stuff.
 
 This tool uses a configuration file that should be placed in your ````$HOME```` directory. The file should be called
 ```.helper_config.json``` and contains the following json object: 
-```{
+```
+{
 "api_token": "<my_token>",
 "url": "<my_gitlab_url>",
 "proxy": "<my_http_proxy>"

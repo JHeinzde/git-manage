@@ -1,5 +1,3 @@
-mod gitlab_client;
-
 use std::error::Error;
 use std::fs::File;
 use std::io::Read;
@@ -7,13 +5,7 @@ use std::os::unix::fs::PermissionsExt;
 
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, Debug)]
-struct Config {
-    api_token: String,
-    url: String,
-    proxy: String,
-}
-
+mod gitlab_client;
 
 fn main() {
     let config_res = read_config(".helper_config.json");
@@ -22,15 +14,18 @@ fn main() {
         panic!("Error while reading config");
     }
 
-    let config = config_res.unwrap();
-    println!("{:?}", config);
+    let git_lab = config_res.unwrap();
 
+    let p_branches = git_lab.get_protected_branches_project("31");
+    if p_branches.is_err() {
+        panic!("Could not get protected branches!");
+    }
 
-    println!("Hello, world!");
+    let p_branches = p_branches.unwrap();
 }
 
 
-fn read_config(config_name: &str) -> Result<Config, Box<dyn Error>> {
+fn read_config(config_name: &str) -> Result<gitlab_client::GitLab, Box<dyn Error>> {
     let mut config_path = std::env::var("HOME")?;
     config_path.push_str(&"/");
     config_path.push_str(config_name);
@@ -47,8 +42,7 @@ fn read_config(config_name: &str) -> Result<Config, Box<dyn Error>> {
 
     let mut content = String::new();
     file.read_to_string(&mut content)?;
-
-    let config: Config = serde_json::from_str(&content)?;
+    let config: gitlab_client::GitLab = serde_json::from_str(&content)?;
 
     return Result::Ok(config);
 }
